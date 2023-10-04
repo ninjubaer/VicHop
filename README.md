@@ -3,9 +3,9 @@ A macro made by Ninju and Ayaanaaa
 
 ## Our mission
 The goal of the VicHop macro was to communicate with multiple alts about the day/night cycle and have main accounts join the alts once vicious is found in their server.
-We use the Socket.ahk library to create a connection between the alt accounts.
+We use the Socket.ahk library to create a connection between the accounts.
 
-## How it should look:
+## Logic
 Lets define some names:
 ```diff
 -Server:
@@ -32,6 +32,31 @@ It calls the main account which goes to the field and kills it.
 In the searchers call, it also includes the location
 of the vicious bee to have the fastest rotation possible.
 ```
+> **Passive Alts:**
+```mermaid
+flowchart LR
+loop --> n[night?]
+n --> |no| loop
+n --> |yes| c["call searcher"] --> loop
+```
+> **Searchers:**
+```mermaid
+flowchart LR
+a[On Receive] --> n[stinger?]
+n -.-o |no| a
+n --> |yes| c["call main"] -.-o a
+```
+> **Main:**
+```mermaid
+flowchart LR
+a[On Receive] --> n["go to vic field"]
+n --> k[killed?]
+k -.-o |"yes -> return 1"| a
+k -.-o |"no x2 -> return 0"| a
+k --> |"no"| n
+```
+
+
 ## Requirements
 For the VicHop macro to run you need:
 > - AutoHotkey v1.1.36+ (dont install v2)
@@ -51,6 +76,11 @@ For the VicHop macro to run you need:
 *******
 > If you have any suggestions or feel like the macro is missing something important,
 > **contact us** on discord with your suggestion
+
+> **Credits:**
+> - NicolaiJee -> path
+> - Xian, ethanolodj -> logic
+> - the guy who created socket.ahk (link later)
 
 ### Contact
 Contact us via discord:
