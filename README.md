@@ -49,4 +49,10 @@ For the VicHop macro to run you need:
 > Feel free to use the macro as much as you want but if something doesnt work as intended,
 > dont sue us, rather report it to us so we can try to fix it.
 *******
-> if you have any suggestions or feel like the macro is missing something important, contact us on discord with your suggestion
+> if you have any suggestions or feel like the macro is missing something important,
+> **contact us** on discord with your suggestion
+
+### Contact
+Contact us via discord:
+`ayaanaaa`
+`.ninju.`
