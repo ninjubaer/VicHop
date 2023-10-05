@@ -20,6 +20,7 @@ SetWorkingDir %A_ScriptDir%
 #include lib/Socket.ahk
 pToken := Gdip_Startup()
 clients := []
+HourlyStingers := 0
 RunWith(32)
 RunWith(bits) {
 	If (A_IsUnicode && (A_PtrSize = (bits = 32 ? 4 : 8)))
@@ -51,13 +52,13 @@ If (!FileExist("Settings"))
 
 If (!FileExist("Settings/config.ini"))
 {
-	FileAppend, [Socket]`nHost=localhost`nPort=6969`n[GUI]`nTheme=MacLion3`n[Planter]`n`n[Settings]`nPrivServer=`nWebhook=`nWebhookURL=`nMoveSpeed=28, Settings/config.ini
+	FileAppend, [Socket]`nHost=localhost`nPort=6969`n[GUI]`nTheme=MacLion3`n[Planter]`n`n[Settings]`nPrivServer=`nWebhookCheck=`nWebhookURL=`nMoveSpeed=28, Settings/config.ini
 }
 if (!FileExist(A_ScriptDir . "\Styles\USkin.dll"))
 	MsgBox, dll file not exist
 
 ;create ini values obj
-IniValues:={"Socket":"Host", "Socket":"Port", "GUI":"Theme", "Setting":"PrivServer", "Settings":"Webhook", "Settings":"WebhookURL", "Settings":"MoveSpeed"}
+IniValues:={"Socket":"Host", "Socket":"Port", "GUI":"Theme", "Setting":"PrivServer", "Settings":"WebhookCheck", "Settings":"WebhookURL", "Settings":"MoveSpeed"}
 ;read ini values from iniValues obj
 for k,v in IniValues
 {
@@ -84,30 +85,57 @@ if (A_ScreenDPI*100//96 != 100)
 */
 Gui main:+border +hwndhGUI +OwnDialogs
 ; Footer
-Gui, main:Add, Button, x5 y246 w65 h20 -Wrap vStartButton, % " Start (F1)"
-Gui, main:Add, Button, x75 y246 w65 h20 -Wrap vPauseButton, % " Pause (F2)"
-Gui, main:Add, Button, x145 y246 w65 h20 -Wrap vStopButton, % " Stop (F3)"
-Gui, main:Add, Text, x435 y251, BETAv1
+Gui, main:Add, Button, x5 y260 w65 h20 -Wrap vStartButton, % " Start (F1)"
+Gui, main:Add, Button, x75  y260 w65 h20 -Wrap vPauseButton, % " Pause (F2)"
+Gui, main:Add, Button, x145 y260 w65 h20 -Wrap vStopButton, % " Stop (F3)"
+Gui, main:Add, Text, x215 y263 w90 h15 +Border +BackgroundTrans, % " Connections: " (clients.maxindex() ? clients.maxindex() : 0)
+Gui, main:Add, Text, x310 y263 w100 h15 +Border +BackgroundTrans, % " Hourly Stingers: " HourlyStingers
+Gui, main:Font, w700
+Gui, main:Add, Text, x435 y263 , BETAv1
 
 ;header
-Gui, main:Add, Tab, x0 y-1 w502 h240 -Wrap hwndhTab vTab, Main|Planter|Status|Settings|Contributor
+Gui, main:Font, cDefault norm s8, Tahoma
+Gui, main:Add, Tab, x0 y0 w502 h240 -Wrap hwndhTab vTab, Main|Planter|Status|Settings|Contributor
+SendMessage, 0x1331, 0, 99, , ahk_id %hTab% ; set minimum tab width
 Gui, main:Tab, Main
-Gui, main:Font, cDefault norm s12, Tahoma
-Gui, main:Add, Text, x5 y25 +backgroundtrans, Main Settings
-Gui, main:Font, s9
-Gui, main:Add, GroupBox, x5 y49 w160 h144 vHostConnectBox, Setup Host
-Gui, main:Add, Text, x10 y69 +BackgroundTrans vHostText, Host:
-Gui, main:Add, Edit, x10 y89 w140 h20 r1 vHostIP, localhost
-Gui, main:Add, Text, x10 y119 +BackgroundTrans vHostPortText, Port (min 4 characters):
-Gui, main:Add, Edit, x10 y139 w140 h20 r1 vHostPort, 6969
-Gui, main:Add, Button, x10 y159 w140 h20 vHostBind, Bind
+Gui, main:Font, cDefault w700 s13 underline, Tahoma
+Gui, main:Add, Text, x7 y31 +backgroundtrans, Main Settings
+Gui, main:Font, s9 norm w700 
+Gui, main:Add, GroupBox, x5 y60 w160 h150 vHostConnectBox, Setup Host
+Gui, main:Font, cDefault norm s9, Tahoma
+Gui, main:Add, Text, x10 y80 +BackgroundTrans vHostText, Host:
+Gui, main:Add, Edit, x10 y100 w140 h20 r1 vHostIP, localhost
+Gui, main:Add, Text, x10 y130 +BackgroundTrans vHostPortText, Port (min 4 characters):
+Gui, main:Add, Edit, x10 y150 w140 h20 r1 vHostPort, 6969
+Gui, main:Add, Button, x10 y170 w140 h20 vHostBind, Bind
 ;Groupbox Functions Host
-Gui, main:Add, GroupBox, x170 y49 w325 h144 vHostFunctionBox, Options
-Gui, main:Add, Checkbox, x175 y69 vHostFunctionsVicious disabled, Placeholder for future
+Gui, main:Font, s9 w700
+Gui, main:Add, GroupBox, x170 y60 w325 h150 vHostFunctionBox, Options
+Gui, main:Font, s9
+Gui, main:Add, Checkbox, x175 y80 vHostFunctionsVicious disabled, Placeholder for future
 Gui, main:Font, s10
-Gui, main:Add, Text, x5 y208 +BackgroundTrans, % "Connections: " (clients.maxindex() ? clients.maxindex() : 0)
+;status tab
+Gui, main:Tab, Status
+Gui, main:Font, cDefault w700 s13 underline, Tahoma
+Gui, main:Add, Text, x9 y31 +backgroundtrans, Status
+Gui, main:Font, s9 norm w700 
+Gui, main:Add, GroupBox, x7 y60 w200 h90 vWebhookFunctionBox, Webhook
+Gui, main:Font, cDefault norm s9, Tahoma
+
+Gui, main:Add, Checkbox, x10 y75 vWebhookCheck gWebhookCheck, Enable Webhook
+Gui, main:Add, Text, x10 y100, WebhookURL
+Gui, main:Add, Edit,% "x10 y115 w190 h19 r1 vWebhookURL " (WebhookCheck ? "" : "disabled")
+
+
 Gui, main:show, w500 h285, VicHop Macro
 return
+
+WebhookCheck(){
+    GuiControlGet, WebhookCheck
+    GuiControl, % (WebhookCheck ? "enable" : "disable"), WebhookURL
+}
+
+
 /*
                         $$\                   $$\     $$\                                           $$\
                         \__|                  $$ |    $$ |                                          $$ |
