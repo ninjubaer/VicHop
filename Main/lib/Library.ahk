@@ -1,3 +1,8 @@
+SetWorkingDir, "../"
+;bitmaps:
+bitmaps:={}
+bitmaps["loading"] := Gdip_BitmapFromBase64("iVBORw0KGgoAAAANSUhEUgAAAGQAAABkAQMAAABKLAcXAAAAA1BMVEUiV6ixRE8dAAAAE0lEQVR42mMYBaNgFIyCUUBXAAAFeAABSanTpAAAAABJRU5ErkJggg==")
+bitmaps["science"] := Gdip_BitmapFromBase64("iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKAQMAAAC3/F3+AAAAA1BMVEX0qQ0Uw53LAAAACklEQVR42mPACwAAHgAB3XenRQAAAABJRU5ErkJggg==")
 /*
 $$$$$$$$\                              $$\     $$\                               
 $$  _____|                             $$ |    \__|                              
@@ -37,7 +42,9 @@ walk_(ms){
 		n += movespeed * end
 	}
 }
-
+githubLink(){
+   Run, https://github.com/ninjubaer/VicHop
+}
 detect_buffs(ms){
 	    starttime := a_tickcount
         global hasteStack, Morph, movespeednum
@@ -85,11 +92,29 @@ detect_buffs(ms){
         buff_correction := (movespeednum + morph) * (haste * oil)
         return %buff_correction%
 }
+setStatus(state := "", description := "", color := 14400){
+   global WebhookURL
+   postdata =
+	(
+	{
+		"embeds": [{
+			"description": "[%A_DD%/%A_MM%][%A_Hour%:%A_Min%:%A_Sec%] **%state%:** %description%",
+			"color": "%color%"
+		}]
+	}
+	)
+	
+	webhook := ComObjCreate("WinHTTP.WinHTTPRequest.5.1")
+   webhook.Open("POST", webhookURL)
+   webhook.SetRequestHeader("User-Agent", "AHK")
+   webhook.SetRequestHeader("Content-Type", "application/json")
+   webhook.Send(postdata).WaitForResponse()
+}
 ;switchServer
 switchServer(server := "")
 {
 	
-	global PrivServer, bitmaps
+	global MainLink, bitmaps, BackupLink1, BackupLink2, FallbackServers
 	If (!server){
 		server := PrivServer
 		serverLinks := [server, FallBackServer1, FallBackServer2]
@@ -108,15 +133,15 @@ switchServer(server := "")
 		}
 	}
     Loop {
-        server := ((A_Index <= (linkCodes.MaxIndex() * 3) &&) && linkCodes.HasKey(n := (A_Index-1)//(linkCodes.MaxIndex() - 2) + 1)) ? n : ((!PublicFallback) && (n := linkCodes.MinIndex())) ? n : 0
+        server := ((A_Index <= (linkCodes.MaxIndex() * 3) &&) && linkCodes.HasKey(n := (A_Index-1)//(linkCodes.MaxIndex() - 2) + 1)) ? n : ((FallbackServers) && (n := linkCodes.MinIndex())) ? n : 0
         success := 0
         
-        if (Roblox())
+      if (Roblox())
 		{
 			WinActivate, % Roblox()
 			SetKeyDelay, A_KeyDelay+250
 			send {Esc}l{Enter}
-			SetKeyDelay, oldKD
+			SetKeyDelay, A_KeyDelay-250
 			WinClose, % Roblox()
 		}
 		; Roblox now definetly closed :skull:
@@ -260,15 +285,15 @@ If (!FileExist("Settings"))
 
 If (!FileExist("Settings/config.ini"))
 {
-	FileAppend, [Socket]`nHost=localhost`nPort=6969`n[GUI]`nTheme=MacLion3`n[Planter]`n`n[Settings]`nPrivServer=`nWebhookCheck=`nWebhookURL=`nMoveSpeed=28, Settings/config.ini
+	FileAppend, [Socket]`nHost=localhost`nPort=6969`n[Planter]`n`n[Settings]`nPrivServer=`nWebhookCheck=`nWebhookURL=`nMoveSpeed=28`nGuiTheme=core, Settings/config.ini
 }
 
 ;create ini values obj
-IniValues:={"Socket":"Host", "Socket":"Port", "GUI":"Theme", "Setting":"PrivServer", "Settings":"WebhookCheck", "Settings":"WebhookURL", "Settings":"MoveSpeed"}
+IniValues:={"Host":"Socket", "Port":"Socket", "PrivServer":"Settings", "WebhookCheck":"Settings", "WebhookURL":"Settings", "UserID":"Settings", "Screenshots":"Settings", "BackupLink1":"Settings", "BackupLink2":"Settings", "MainLink":"Settings", "GuiTransparency":"Settings","HiveSlot":"Settings", "FallbackCheck":"Settings", "FallbackServers":"Settings", "KeyDelay":"Settings", "MoveSpeedNum":"Settings", "GuiTheme":"Settings"}
 ;read ini values from iniValues obj
 for k,v in IniValues
 {
-	IniRead, %v%, Settings/config.ini, %k%, %v%
+	IniRead, %k%, Settings/config.ini, %v%, %k%
 }
 }
 WebhookCheck(){
@@ -276,21 +301,20 @@ WebhookCheck(){
     GuiControl, % (WebhookCheck ? "enable" : "disable"), WebhookURL
 }
 GetOut(){
+save()
 Gui, Hide
 SkinForm(0)
 ExitApp
 return
 }
 importStyles() {
-	global StylesList, Theme
-	StylesList := ""
+	global StylesList, GuiTheme
+	StylesList := GuiTheme "|"
 	Loop, Files, %A_ScriptDir%\Styles\*.msstyles
 		StylesList .= "|" A_LoopFileName
 
 	StylesList .= "|", StylesList := StrReplace(StylesList, ".msstyles")
 
-	if !(Instr(StylesList, GuiTheme))
-		StylesList .= GuiTheme "|"
 }
 SkinForm(Param1 = "Apply", DLL = "", SkinName = ""){
 	if(Param1 = Apply){
@@ -301,6 +325,112 @@ SkinForm(Param1 = "Apply", DLL = "", SkinName = ""){
 		DllCall(DLL . "\USkinExit")
 	}
 }
+save(){
+	GuiControlGet, HostIP
+	GuiControlGet, HostPort
+	GuiControlGet, GatherOnMain
+	GuiControlGet, Field1
+	GuiControlGet, BugRunOnMain
+	GuiControlGet, WebhookCheck
+	GuiControlGet, WebhookURL
+	GuiControlGet, UserID
+	GuiControlGet, ScreenShots
+	GuiControlGet, ShowLogs
+	GuiControlGet, AlwaysOnTop
+	GuiControlGet, GuiTheme
+	GuiControlGet, guiTransparencySet
+	GuiControlGet, KeyDelay
+	GuiControlGet, HiveSlot
+	GuiControlGet, MainLink
+	GuiControlGet, BackupLink1
+	GuiControlGet, BackupLink2
+	GuiControlGet, FallbackServers
+	IniWrite, %HostIP%, settings/config.ini, Settings, HostIP
+	IniWrite, %HostPort%, settings/config.ini, Settings, HostPort
+	IniWrite, %GatherOnMain%, settings/config.ini, Settings, GatherOnMain
+	IniWrite, %Field1%, settings/config.ini, Settings, Field1
+	IniWrite, %BugRunOnMain%, settings/config.ini, Settings, BugRunOnMain
+	IniWrite, %WebhookCheck%, settings/config.ini, Settings, WebhookCheck
+	IniWrite, %UserID%, settings/config.ini, Settings, UserID
+	IniWrite, %WebhookURL%, settings/config.ini, Settings, WebhookURL
+	IniWrite, %ScreenShots%, settings/config.ini, Settings, ScreenShots
+	IniWrite, %ShowLogs%, settings/config.ini, Settings, ShowLogs
+	IniWrite, %AlwaysOnTop%, settings/config.ini, Settings, AlwaysOnTop
+	IniWrite, %GuiTheme%, settings/config.ini, Settings, GuiTheme
+	IniWrite, %guiTransparencySet%, settings/config.ini, Settings, guiTransparencySet
+	IniWrite, %KeyDelay%, settings/config.ini, Settings, KeyDelay
+	IniWrite, %HiveSlot%, settings/config.ini, Settings, HiveSlot
+	IniWrite, %MainLink%, settings/config.ini, Settings, MainLink
+	IniWrite, %BackupLink1%, settings/config.ini, Settings, BackupLink1
+	IniWrite, %BackupLink2%, settings/config.ini, Settings, BackupLink2
+	IniWrite, %FallbackServers%, settings/config.ini, Settings, FallbackServers
+}
+Stats(){
+	global HourlyStingers, TotalVicKills, SessionVicKills, TotalStingersGained
+	if (A_Min = 00){
+		HourlyStingers := TotalStingersGained // TotalVicKills
+	}
+	Text := "Total Vicous Kills: " . TotalVicKills . "`nVicous Kills This Session: " . SessionVicKills . "`nTotal Stingers Gained: " . TotalStingersGained . "`nStingers Gained This Hour: " . HourlyStingers . "`nAverage Stingers Per Hour: " . HourlyStingers
+	GuiControl,,stats,%text%
+	return text
+}
+GatherOnMain(){
+	GuiControlGet, GatherOnMain
+	GuiControl, % (GatherOnMain ? "enable" : "disable"), Field1
+}
+moveSpeed(hMS){
+	global MoveSpeedNum
+	ControlGet, p, CurrentCol, , , ahk_id %hMS%
+	GuiControlGet, NewMoveSpeed, , %hMS%
+	StrReplace(NewMoveSpeed, ".", , n)
+
+    if (NewMoveSpeed ~= "[^\d\.]" || (n > 1)) ; contains char other than digit or dpt, or more than 1 dpt
+	{
+        GuiControl, , %hMS%, %MoveSpeedNum%
+        SendMessage, 0xB1, % p-2, % p-2, , ahk_id %hMS%
+    }
+    else
+	{
+		MoveSpeedNum := NewMoveSpeed
+		MoveSpeedFactor:=round(18/MoveSpeedNum, 2)
+		IniWrite, %MoveSpeedNum%, settings/config.ini, Settings, MoveSpeedNum
+		IniWrite, %MoveSpeedFactor%, settings/config.ini, Settings, MoveSpeedFactor
+	}
+}
+AlwaysOnTop(){
+	GuiControlGet, AlwaysOnTop
+	IniWrite, %AlwaysOnTop%, settings\config.ini, Settings, AlwaysOnTop
+	if(AlwaysOnTop)
+		Gui +AlwaysOnTop
+	else
+		Gui -AlwaysOnTop
+}
+ThemeSelect(){
+	GuiControlGet, GuiTheme
+	SkinForm(Apply, A_ScriptDir . "\Styles\USkin.dll" , A_ScriptDir . "\Styles\" . GuiTheme . ".msstyles")
+	reload
+}
+guiTransparencySet(){
+	GuiControlGet, GuiTransparency
+	IniWrite, %GuiTransparency%, settings\config.ini, Settings, GuiTransparency
+	setVal:=255-floor(GuiTransparency*2.55)
+	winset, transparent, %setval%, VicHop Macro
+}
+FallBackCheck(){
+	GuiControlGet, FallbackServers
+	if (FallbackServers){
+		GuiControl, % (FallbackServers ? "enable" : "disable"), BackupLink1
+	} else {
+		GuiControl, disable, BackupLink1
+		GuiControl, disable, BackupLink2
+	}
+}
+SettingsCheck(){
+    GuiControlGet, BackupLink1
+    GuiControl, % (BackupLink1 ? "enable" : "disable"), BackupLink2
+	IniWrite, %BackupLink1%, settings/config.ini, settings, BackupLink1
+}
+
 /*
  $$$$$$\                      $$\                  $$\     
 $$  __$$\                     $$ |                 $$ |    
