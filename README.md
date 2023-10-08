@@ -1,5 +1,5 @@
 # VicHop
-A macro made by Ninju and Ayaanaaa
+A macro made by Ninju and Ayaanaaa and Noks
 
 ## Our mission
 The goal of the VicHop macro was to communicate with multiple alts about the day/night cycle and have main accounts join the alts once vicious is found in their server.
@@ -86,3 +86,4 @@ For the VicHop macro to run you need:
 Contact us via discord:
 `ayaanaaa`
 `.ninju.`
+`Noks#3663`
