@@ -91,23 +91,45 @@ detect_buffs(ms){
         buff_correction := (movespeednum + morph) * (haste * oil)
         return %buff_correction%
 }
-setStatus(state := "", description := "", color := 14400){
-   global WebhookURL
-   postdata =
-	(
-	{
-		"embeds": [{
-			"description": "[%A_DD%/%A_MM%][%A_Hour%:%A_Min%:%A_Sec%] **%state%:** %description%",
-			"color": "%color%"
-		}]
-	}
-	)
+setStatus(state := "", description := "",crit := 0, color := 13684834){
+   global WebhookURL, UserID
+   if (crit && UserID)
+   {
+      postdata =
+      (
+      {
+         "content":"<@%UserID%>",
+         "embeds": [{
+            "description": "[%A_DD%/%A_MM%][%A_Hour%:%A_Min%:%A_Sec%] **%state%:** %description%",
+            "color": "%color%",
+            "author": {
+               "icon_url":"https://cdn.discordapp.com/attachments/1160292670636302366/1160909628612280473/logo.png?ex=65366058&is=6523eb58&hm=2ab5fefc293344f94dd0722608d81af2ddfbd1ee3ec1920d46c56d0eff930450&",
+               "name": "Stinger Macro"
+            }
+         }]
+      }
+      )
+   }Else{
+      postdata =
+      (
+      {
+         "embeds": [{
+            "description": "[%A_DD%/%A_MM%][%A_Hour%:%A_Min%:%A_Sec%] **%state%:** %description%",
+            "color": "%color%",
+            "author": {
+               "icon_url":"https://cdn.discordapp.com/attachments/1160292670636302366/1160909628612280473/logo.png?ex=65366058&is=6523eb58&hm=2ab5fefc293344f94dd0722608d81af2ddfbd1ee3ec1920d46c56d0eff930450&",
+               "name": "Stinger Macro"
+            }
+         }]
+      }
+      )
+   }
 	
-	webhook := ComObjCreate("WinHTTP.WinHTTPRequest.5.1")
-   webhook.Open("POST", webhookURL)
-   webhook.SetRequestHeader("User-Agent", "AHK")
-   webhook.SetRequestHeader("Content-Type", "application/json")
-   webhook.Send(postdata).WaitForResponse()
+	   webhook := ComObjCreate("WinHTTP.WinHTTPRequest.5.1")
+   	webhook.Open("POST", webhookURL)
+   	webhook.SetRequestHeader("User-Agent", "AHK")
+   	webhook.SetRequestHeader("Content-Type", "application/json")
+   	webhook.Send(postdata).WaitForResponse()
 }
 ;switchServer
 switchServer(server := "")
@@ -283,28 +305,29 @@ If (!FileExist("Settings"))
 }
 
 If (!FileExist("Settings/config.ini"))
-{
-	FileAppend, [Socket]`nHost=localhost`nPort=6969`n[Planter]`n`n[Settings]`nPrivServer=`nWebhookCheck=`nWebhookURL=`nMoveSpeed=28`nGuiTheme=core, Settings/config.ini
-}
+   {
+      FileAppend, [Socket]`nHost=localhost`nPort=6969`n[Planter]`n`n[Settings]`nPrivServer=`nWebhookCheck=`nWebhookURL=`nUserID=`nscreenshots=`nBackupLink1=`nBackupLink2=`nGuiTheme=MacLion3`nMainLink=`nFallbackServers=`nFallBackCheck=`nKeyDelay=20`nGuiTransparency=0`nAlwaysOnTop=1`nHiveSlot=6`nMoveSpeedNum=28, Settings/config.ini
+   }
 
-;create ini values obj
-IniValues:={"Host":"Socket", "Port":"Socket", "PrivServer":"Settings", "WebhookCheck":"Settings", "WebhookURL":"Settings", "UserID":"Settings", "Screenshots":"Settings", "BackupLink1":"Settings", "BackupLink2":"Settings", "MainLink":"Settings", "GuiTransparency":"Settings","HiveSlot":"Settings", "FallbackCheck":"Settings", "FallbackServers":"Settings", "KeyDelay":"Settings", "MoveSpeedNum":"Settings", "GuiTheme":"Settings"}
-;read ini values from iniValues obj
-for k,v in IniValues
-{
-	IniRead, %k%, Settings/config.ini, %v%, %k%
-}
+   ;create ini values obj
+   IniValues:={"Host":"Socket", "Port":"Socket", "GuiTheme":"Settings", "PrivServer":"Settings", "WebhookCheck":"Settings", "WebhookURL":"Settings", "UserID":"Settings", "Screenshots":"Settings", "BackupLink1":"Settings", "BackupLink2":"Settings", "KeyDelay":"Settings", "MainLink":"Settings", "GuiTransparency":"Settings","HiveSlot":"Settings", "FallbackCheck":"Settings", "FallbackServers":"Settings", "KeyDelay":"Settings", "MoveSpeedNum":"Settings"}
+   ;read ini values from iniValues obj
+   for k,v in IniValues
+   {
+      IniRead, %k%, Settings/config.ini, %v%, %k%
+   }
 }
 WebhookCheck(){
     GuiControlGet, WebhookCheck
     GuiControl, % (WebhookCheck ? "enable" : "disable"), WebhookURL
+    GuiControl, % (WebhookCheck ? "enable" : "disable"), UserID
 }
 GetOut(){
-save()
-Gui, Hide
-SkinForm(0)
-ExitApp
-return
+   save()
+   Gui, Hide
+   SkinForm(0)
+   ExitApp
+   return
 }
 importStyles() {
 	global StylesList, GuiTheme
@@ -363,6 +386,522 @@ save(){
 	IniWrite, %BackupLink1%, settings/config.ini, Settings, BackupLink1
 	IniWrite, %BackupLink2%, settings/config.ini, Settings, BackupLink2
 	IniWrite, %FallbackServers%, settings/config.ini, Settings, FallbackServers
+}
+GotoStrawberry(){  ;cannon to strawberry 
+    reset()
+    gotoramp()
+    gotocannon()
+    send e
+    hypersleep(775)
+    send {s down}{d down}
+    sendspace()
+    sendspace()
+    hypersleep(1200)
+    send {s up}
+    hypersleep(700)
+    send {d up}
+    sendspace()
+    hypersleep(2000)
+    send {. 4}
+}
+GotoSpider(){      ;cannon to spider 
+    reset()
+    gotoramp()
+    gotocannon()
+    send {e}{. 4}
+    hypersleep(900)
+    send {Shift}
+    sendSpace()
+    sendSpace()
+    send {Shift}
+    Hypersleep(300)
+    sendSpace()
+    Hypersleep(3000)
+}
+GotoBlueFlower(){   ;walk to blue flower
+    reset()
+    send {a down}
+    hypersleep(675)
+    send {space 2}
+    hypersleep(2000)
+    send {a up}
+    hypersleep(1250)
+    send {space}{. 2}
+    hypersleep(1000)
+}
+GotoClover(){       ;cannon to clover
+    reset()
+    GotoRamp()
+    GotoCannon()
+    send e
+    hypersleep(600)
+    send {space 2}
+    send {w down}{a down}
+    hypersleep(1500)
+    send {w up}
+    hypersleep(2500)
+    send {a up}
+    send {space}
+    hypersleep(2000)
+}
+GotoPineapple(){    ;cannon to pineapple
+    reset()
+    GotoRamp()
+    GotoCannon()
+    send {e}{, 2}
+    hypersleep(2000)
+    send {space 2}
+    send {w down}
+    hypersleep(2700)
+    send {, 2}
+    hypersleep(700)
+    send {w up}
+    send {space}
+    hypersleep(2000)
+}
+GotoPineTree(){     ;cannon to pine tree
+    reset()
+    gotoRamp()
+    GotoCannon()
+    send {e}{d down}{s down}
+    hypersleep(925)
+    send {space}
+    send {space}
+    hypersleep(4700)
+    send {s up}
+    hypersleep(200)
+    send {d up}
+    send {space}
+    send {. 4}
+    hypersleep(2000)
+}
+GotoCactus(){       ;cannon to cac
+    reset()
+    gotoRamp()
+    GotoCannon()
+    send {e}{d down}{s down}
+    hypersleep(925)
+    send {space 2}
+    hypersleep(1700)
+    send {d up}{s up}
+    hypersleep(1000)
+    send {space}{. 4}
+    hypersleep(2000)
+}
+GotoMt(){           ;cannon to mt
+    reset()
+    gotoRamp()
+    GotoCannon()
+    Send, {e}
+}
+GotoPump(){        ;cannon to Pump
+    reset()
+    gotoRamp()
+    GotoCannon()
+    Send, {e}
+    Hypersleep(1000)
+    Send, {Space}
+    HyperSleep(75)
+    Send, {a down}
+    HyperSleep(75)
+    Send, {space}
+    HyperSleep(1600)
+    Send, {a up}
+    Send, {w down}
+    HyperSleep(2600)
+    Send, {w up}
+    Send, {Space} ; go fwd hit wall go right hit wall and u are aligned in the corner 
+}
+GotoBamb(){        ;cannon to bamb
+    reset()
+    gotoRamp()
+    GotoCannon()    
+    Send, {e}
+    Send, {d down}
+    HyperSleep(1200)
+    Send, {Space}
+    HyperSleep(75)
+    Send, {Space}
+    HyperSleep(2000)
+    Send, {Space}
+    Send, {d up} ; walk forward and hit the wall then move to the left to align with the bamboo shoot
+}
+GotoRose(){        ;cannon to rose
+    reset()
+    gotoRamp()
+    GotoCannon()  
+    Send, {e}
+    Send, {a down}
+    HyperSleep(75)
+    Send, {Space}
+    HyperSleep(600)
+    Send, {Space}
+    HyperSleep(2500)
+    Send, {Space}
+    Send, {a up}
+}
+GotoStump(){       ;cannon to stump
+    reset()
+    gotoRamp()  
+    GotoCannon()
+    Send, {e}
+    Send, {.}
+    HyperSleep(50)
+    Send, {.}
+    HyperSleep(400)
+    Send, {w Down}
+    HyperSleep(1500)
+    Send, {Space}
+    HyperSleep(75)
+    Send, {Space}
+    HyperSleep(500)
+    Send, {w Up}
+    HyperSleep(4500)
+    Send, {Space}
+}
+walk(tiles, dir:="w", dir2:="none"){
+	send {%dir% down}
+	if (dir2 != "none"){
+		send {%dir2% down}
+	}
+	walk_(tiles)
+	send {%dir% up}
+	if (dir2 != "none"){
+		send {%dir2% up}
+	}
+}
+BugRun(){
+    LadyBug:=300, Rhino:=300, Scorpian:=300, Mantis:=300, Spider:=1800, Wolf:=3600 ;cooldown in minutes
+    ;ladybugs
+    IniRead, LadyBugTimer, settings/config.ini, Bugs, LadyBugTimer
+    if (toUnix_() - LadyBugTimer > LadyBug){
+        GotoStrawberry()
+        KillMob()
+        walk(8, "s", "d")
+        loop 2 {
+            walk(9, "w")
+            walk(1.5, "a")
+            walk(9, "s")
+            walk(1.5, "a")
+        }
+        loop 2 {
+            walk(9, "w")
+            walk(1.5, "d")
+            walk(9, "s")
+            walk(1.5, "d")
+        }
+        walk(15, "a")
+        walk(13, "s")
+        walk(22, "d")
+        walk(20, "s", "d")
+        KillMob()
+        loop 2 {
+            walk(9, "w")
+            walk(1.5, "a")
+            walk(9, "s")
+            walk(1.5, "a")
+        }
+        loop 2 {
+            walk(9, "w")
+            walk(1.5, "d")
+            walk(9, "s")
+            walk(1.5, "d")
+        }
+        LadyBugTimer := toUnix_()
+        IniWrite, %LadyBugTimer%, settings/config.ini, Bugs, LadyBugTimer
+    }
+    ;Spider
+    IniRead, SpiderTimer, settings/config.ini, Bugs, SpiderTimer
+    if (toUnix_() - SpiderTimer > Spider){
+        GotoSpider()
+        KillMob()
+        walk(2, "s","d")
+        loop 3 {
+            walk(12, "w")
+            walk(1.5, "a")
+            walk(12, "s")
+            walk(1.5, "a")
+        }
+    }
+    IniRead, RhinoTimer, settings/config.ini, Bugs, RhinoTimer
+    if (toUnix_() - RhinoTimer > Rhino){
+		if (toUnix_() - SpiderTimer < Spider){
+			GotoBlueFlower()
+		}
+		SpiderTimer := toUnix_()
+        IniWrite, %SpiderTimer%, settings/config.ini, Bugs, SpiderTimer
+		send {. 2}
+		walk(45, "w")
+		KillMob()
+		walk(2, "s","d")
+		loop 3 {
+			walk(14, "w")
+			walk(1.5, "a")
+			walk(14, "s")
+			walk(1.5, "a")
+		}
+		;bluf
+		send {. 2}
+		walk(2, "d")
+		walk(45, "w")
+		send {, 2}
+		KillMob()
+		walk(1, "s","d")
+		loop 3 {
+			walk(9, "w")
+			walk(1.5, "a")
+			walk(9, "s")
+			walk(1.5, "a")
+		}
+		;clover
+		GotoClover()
+		KillMob()
+		walk(5, "s","d")
+		loop 3 {
+			walk(14, "w")
+			walk(1.5, "a")
+			walk(14+(a_index*2), "s")
+			walk(1.5, "a")
+		}
+		;last ladybug
+		LadyBugTimer := toUnix_()
+        IniWrite, %LadyBugTimer%, settings/config.ini, Bugs, LadyBugTimer
+		;pineapple
+		GotoPineapple()
+		KillMob()
+		walk(3.5, "s","d")
+        loop 3 {
+            walk(12, "w")
+            walk(1.5, "a")
+            walk(12+(a_index+1.5), "s")
+            walk(1.5, "a")
+        }
+		RhinoTimer := toUnix_()
+		IniWrite, %RhinoTimer%, settings/config.ini, Bugs, RhinoTimer
+	}
+	;mantis
+	IniRead, WolfTimer, settings/config.ini, Bugs, WolfTimer
+    if (toUnix_() - WolfTimer > Wolf){
+		GotoCactus()
+		KillMob()
+ 		loop 4 {
+            walk(12, "w")
+            walk(1.5, "d")
+            walk(12, "s")
+            walk(1.5, "d")
+        }
+		WolfTimer := toUnix_()
+		IniWrite, %WolfTimer%, settings/config.ini, Bugs, WolfTimer
+	}
+	IniRead, MantisTimer, settings/config.ini, Bugs, MantisTimer
+    if (toUnix_() - MantisTimer > Mantis){
+		GotoPineTree()
+		KillMob()
+		walk(7, "w")
+		walk(4, "a")
+		loop 3 {
+			walk(22, "s")
+			walk(1.25, "a")
+			walk(22, "w")
+			walk(1.25, "a")
+		}
+		MantisTimer := toUnix_()
+		IniWrite, %MantisTimer%, settings/config.ini, Bugs, MantisTimer
+	}
+}
+toUnix_(){
+    Time := A_NowUTC
+    EnvSub, Time, 19700101000000, Seconds
+    return Time
+}
+sendspace(){
+	send {space down}
+	sleep, 100
+	send {space up}
+}
+GotoRamp(){
+	IniRead, HiveSlot, settings/config.ini, Settings, HiveSlot
+	walk(6, "w")
+	walk(8.35*hiveslot+1, "d")
+}
+GotoCannon(){
+	cannonstart:
+	send {d down}
+	sendspace()
+	walk_(12)
+	send {d up}
+	sleep 500
+		If (imagesearch("e_button.png",30,"high")[1] = 0){
+			goto, cannonEnd
+		} else If (imagesearch("e_button.png",30,"high")[1] = 1){
+			reset()
+			gotoramp()
+			goto, cannonstart
+		}
+cannonEnd:
+}
+KillMob(){
+    WinGetClientPos(windowX, windowY, windowWidth, windowHeight, "Roblox ahk_exe RobloxPlayerBeta.exe")
+    send 1
+    starttime := toUnix_()
+    loop 10 {
+        ImageSearch, FoundX, FoundY, windowWidth/2, windowHeight/2, windowWidth, windowHeight, *30 images\deadmob.png
+		if (errorlevel = 0)
+        {
+            break
+        }
+        if (toUnix_() - starttime > 10){ ;10 seconds
+           	break
+        }
+		hypersleep(1000)
+		click
+    }
+	Gdip_DisposeImage(GdipBitmap)
+}
+reset(loops:=1){
+confirmedhive := 0
+	;bees, click on x - get useless stuff out the way
+	WinGetPos , windowX, windowY, windowWidth, windowHeight, Roblox
+	xPos := imagesearch("x.png",30,"high")
+	        If (xpos[1] = 0){
+	            MouseMove, (xPos[2]+5), (xPos[3]+6)
+	            Click
+	            sleep, 1000
+	        }
+	;planter
+	;click on the no
+	        noPos := imagesearch("no.png",30)
+	        If (noPos[1] = 0){
+	            MouseMove, (noPos[2] + 10), (noPos[3] + 10)
+	            Click
+	            sleep, 1000
+	        }
+	;chat
+	CPos := imagesearch("chat.png",30)
+	        If (CPos[1] = 0){
+	            MouseMove, (CPos[2]+5), (CPos[3]+6)
+	            Click
+ 	           	sleep, 1000
+	        }
+		while (A_Index<=4) {
+			;reset
+		loop, %loops% {
+			setkeydelay, 100
+			send {esc}
+			send r
+			send {enter}
+			sleep,8000
+		}
+		SetKeyDelay, 20
+		sendinput {PgUp 4}
+		loop 6 {
+			send o
+			sleep, 20
+		}
+		sleep,1000
+			Loop 4 {
+				If ((ImageSearch("hive4.png",20,"hive")[1] = 0) || (ImageSearch("hive_honeystorm.png",20,"hive")[1] = 0) || (ImageSearch("hive_snowstorm.png",20,"hive")[1] = 0)){
+					sendinput {. 4}{PgDn 4}
+					confirmedHive := 1
+					goto, resetender
+    					break
+			}
+	sendinput {. 4}
+	sleep, 270
+	   }
+	if (A_Index >=4){
+	    ;reconect here
+	    }
+	}
+resetender:
+sleep, 700
+{
+    WinGetPos , windowX, windowY, windowWidth, windowHeight, Roblox
+	searchRet := imagesearch("e_button.png",30,"high")
+	If (searchRet[1] = 0) {
+		ImageSearch, FoundX, FoundY, 0, 0, windowWidth, windowHeight/2, *100 *Trans0xF7FFF9 images\make.png
+		If (ErrorLevel = 0) {
+			send e
+			loop 1800 {
+				searchRet := imagesearch("e_button.png",30,"high")
+				If (searchRet[1] != 0)
+					break
+				}
+				sleep, 500
+				}
+			}
+		}
+}
+ImageSearch(NameOfFile,v,aim := "fullscreen"){
+    WinGetPos , windowX, windowY, windowWidth, windowHeight, Roblox
+    xi := 0
+    yi := 0
+    if (windowWidth){
+        ww := windowWidth
+        wh := windowHeight
+        if (aim = "low")
+            yi := windowHeight / 2
+        if (aim = "high")
+            wh := windowHeight / 2
+        if (aim = "lowright") {
+            yi := windowHeight / 2
+            xi := windowWidth / 2
+		}
+        if (aim = "lowleft") {
+            yi := windowHeight/2
+		ww := windowWidth/2
+		}
+		if (aim = "left"){
+			ww := windowWidth / 2
+		}
+		if (aim = "right"){
+			xi := windowWidth / 2
+		}
+        if (aim = "highleft") {
+            wh := windowHeight/2
+		ww := windowWidth/2
+		}
+        if (aim = "topright") {
+            xi := windowWidth/2
+		wh := windowHeight/2
+		}
+        if (aim = "abovebuff") {
+		wh := 30
+		ww := windowWidth-100
+		}
+        if (aim = "hive") {
+            xi := windowWidth/4
+		yi := (windowHeight/4)*3
+		ww := xi*3
+		}
+        if (aim = "upper") {
+            wh := windowHeight/2
+		}
+		if (aim = "Pollen"){
+			wh := windowHeight/8
+		}
+        if (aim = "inventory") {
+            ww := windowWidth/4
+		}
+        if (aim = "center") {
+		xi := windowWidth / 4
+		yi := windowHeight / 4
+		ww := xi*3
+		wh := yi*3
+		}
+	}
+	IfExist, %A_ScriptDir%\images\
+{
+ImageSearch, FoundX, FoundY, xi, yi, ww, wh, *%v% images\%NameOfFile%
+    if (ErrorLevel = 2){
+		Sleep, 5000
+		Process, Close, % DllCall("GetCurrentProcessId")
+    }
+    return [ErrorLevel,FoundX,FoundY]
+	} else {
+		MsgBox Folder location cannot be found:`n%A_ScriptDir%\images\
+		return 3, 0, 0
+	}
 }
 Stats(){
 	global HourlyStingers, TotalVicKills, SessionVicKills, TotalStingersGained

@@ -5,7 +5,7 @@ SetBatchLines, -1
 #Include, lib/Library.ahk
 SetWorkingDir, %A_ScriptDir%
 pToken := Gdip_Startup()
-paused := 0
+
 ;START VARS
 clients := []
 HourlyStingers := 0
@@ -29,7 +29,6 @@ $$ |  $$ |$$ |  $$ |  $$ |
 \$$$$$$  |\$$$$$$  |$$$$$$\
  \______/  \______/ \______|
 */
-Menu, Tray,Icon, Images/logo.ico
 if (AlwaysOnTop)
 	gui +AlwaysOnTop
 /*
@@ -65,10 +64,10 @@ Gui, Add, Button, x10 y170 w140 h20 vHostBind, Bind
 Gui, Font, s9 w700
 Gui, Add, GroupBox, x170 y60 w325 h150 vHostFunctionBox, Options
 Gui, Font, s9
-Gui, Add, radio, % "x175 y80 vGatherOnMain gGatherOnMain " (GatherOnMain ? "checked":"") , Gather On Main When No Vicous
-Gui, Add, radio, x175 y140 vBugRunOnMain, Bug Run On Main When No Vicous
+Gui, Add, Checkbox, x175 y80 vGatherOnMain gGatherOnMain, Gather On Main When No Vicous
 Gui, Add, Text, x175 y110 +BackgroundTrans, Gathering Field:
 Gui, Add, DropDownList,% " x275 y107 w60 vField1 " (GatherOnMain = 1 ? "" : "disabled"), %Field1%||None|Bamboo|Blue Flower|Cactus|Clover|Coconut|Dandelion|Mountain Top|Mushroom|Pepper|Pine Tree|Pineapple|Pumpkin|Rose|Spider|Strawberry|Stump|Sunflower
+Gui, Add, Checkbox, x175 y140 vBugRunOnMain, Bug Run On Main When No Vicous
 Gui, Add, Checkbox, x175 y170 vHostFunctionsVicious disabled, Placeholder for future(Mondo...)
 Gui, Add, Text, x10 y210 +BackgroundTrans cred, Note: This Feature Is For More Advanced Users. `nIf You Struggle To Extract a Folder, This Might Not Be The Best For You.
 Gui, Font, s10
@@ -117,15 +116,12 @@ Gui, Add, Edit,% "x180 y143 w190 h15 r1 vMainLink"
 Gui, Add, Edit,% "x180 y173 w190 h15 r1 vBackupLink1 gSettingsCheck " (FallbackServers ? "" : "disabled")
 Gui, Add, Edit,% "x180 y203 w190 h15 r1 vBackupLink2 " (BackupLink1 ? "" : "disabled")
 Gui, Add, Checkbox, % "x350 y77 vFallbackServers gFallBackCheck " (FallbackServers ? "checked":"") , Fallback Servers
-setStatus("StartupUI", "start macro with F1")
 Gui, show, w500 h285, VicHop Macro
 return
 
 Hotkey, F1, startup
-Hotkey, F2, pauseMacro
-Hotkey, F3, StopMacro
 startup(){
-   	GuiControlGet, GatherOnMain
+   GuiControlGet, GatherOnMain
 	GuiControlGet, Field1
 	GuiControlGet, BugRunOnMain
 	GuiControlGet, WebhookCheck
@@ -138,27 +134,19 @@ startup(){
 	GuiControlGet, BackupLink1
 	GuiControlGet, BackupLink2
 	GuiControlGet, FallbackServers
-	paused := 0
+
     SetKeyDelay, KeyDelay
-    setStatus("Starting", "Main Loop")
+    
 }
-pauseMacro(){
-global paused
-paused := (paused ? 0 : 1)
-Send, {Space up}
-Send, {w up}
-Send, {a up}
-Send, {s up}
-Send, {d up}
-setStatus((paused ? "paused macro" : "unpaused macro"), (paused ? "press F2 to continue":"macro is running again"), 1)
-Pause
+F2::
+GuiControlGet, WebhookURL
+setStatus("Testing", "Ayaan's mom at midnight")
 Return
-}
-StopMacro(){
-save()
-Reload
+F3::
+GuiControlGet, WebhookURL
+IniWrite, %WebhookURL%, settings/config.ini, Settings, WebhookURL
+MsgBox, % WebhookURL
 Return
-}
 GuiClose:
 GetOut()
 Return
