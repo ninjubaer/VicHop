@@ -93,6 +93,8 @@ detect_buffs(ms){
 }
 setStatus(state := "", description := "",crit := 0, color := 13684834){
    global WebhookURL, UserID
+   if (!WebhookURL)
+	return
    if (crit && UserID)
    {
       postdata =
